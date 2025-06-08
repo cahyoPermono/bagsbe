@@ -1,0 +1,30 @@
+{
+  "name": "bagsbe",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "Cahyo Permono <cahyo.adi@imaniprima.com>",
+  "license": "ISC",
+  "packageManager": "pnpm@10.5.2",
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "bcrypt": "^6.0.0",
+    "drizzle-orm": "^0.44.2",
+    "hono": "^4.7.11",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "@types/node-fetch": "^2.6.12",
+    "node-fetch": "2",
+    "supertest": "^7.1.1",
+    "tsx": "^4.19.4",
+    "vitest": "^3.2.2"
+  }
+}
