@@ -1,40 +1,26 @@
-import { Pool } from 'pg';
-import * as fs from 'fs';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
+import { exec } from 'child_process';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function runMigrations() {
+  const migrateCmd = 'npx drizzle-kit migrate';
 
-async function runMigrations() {
-  const pool = new Pool({
-    host: 'localhost',
-    port: 5432,
-    database: 'bagsbe',
-    user: 'user',
-    password: 'password',
+  const migrateProcess = exec(migrateCmd);
+
+  migrateProcess.stdout?.on('data', (data) => {
+    console.log(data.toString());
   });
 
-  const client = await pool.connect();
+  migrateProcess.stderr?.on('data', (data) => {
+    console.error(data.toString());
+  });
 
-  try {
-    const migrationsDir = path.resolve(__dirname, '../migrations');
-    const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
-
-    for (const file of files) {
-      const filePath = path.join(migrationsDir, file);
-      const sql = fs.readFileSync(filePath, 'utf-8');
-      console.log(`Running migration: ${file}`);
-      await client.query(sql);
+  migrateProcess.on('close', (code) => {
+    if (code === 0) {
+      console.log('Migrations completed successfully.');
+    } else {
+      console.error('Migration process exited with code ' + code);
+      process.exit(code || 1);
     }
-
-    console.log('Migrations completed successfully.');
-  } catch (err) {
-    console.error('Error running migrations:', err);
-  } finally {
-    client.release();
-    await pool.end();
-  }
+  });
 }
 
 runMigrations();

@@ -1,11 +1,17 @@
 import { Hono } from 'hono';
 import auth from './routes/auth';
+import bookingRoute from './routes/booking';
+import paxRoute from './routes/pax';
+import paymentRoute from './routes/payment';
 import { authMiddleware, authorizeRoles } from './middleware/auth';
 import './scheduler';
 
 const app = new Hono();
 
 app.route('/auth', auth);
+app.route('/booking', bookingRoute);
+app.route('/pax', paxRoute);
+app.route('/payment', paymentRoute);
 
 app.get('/protected', authMiddleware, (c) => {
   // @ts-ignore
