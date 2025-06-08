@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import auth from './routes/auth';
 import { authMiddleware, authorizeRoles } from './middleware/auth';
+import './scheduler';
 
 const app = new Hono();
 
@@ -22,3 +23,8 @@ app.get('/', (c) => c.text('Hello from Hono backend with Drizzle ORM!'));
 import { serve } from '@hono/node-server';
 
 serve(app);
+
+console.log('========================================');
+console.log('🚀 Server berjalan di http://localhost:3000');
+console.log('📅 Scheduler aktif, menulis log setiap menit');
+console.log('========================================');
