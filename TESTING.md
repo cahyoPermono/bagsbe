@@ -86,6 +86,19 @@ This document provides standardized instructions for manually testing the backen
   curl http://localhost:3000/booking/pnr/PNR12345
   ```
 
+### Fetch Flights (External API)
+- **POST /booking/fetch-flights**
+- **Body:**
+  ```json
+  {}
+  ```
+  (Payload body dikosongkan, karena API backend akan otomatis menggunakan struktur default yang sudah di-hardcode)
+- **Expected:** 200 OK dengan pesan konfirmasi, hasil response API eksternal akan muncul di server log.
+- **Curl:**
+  ```bash
+  curl -X POST http://localhost:3000/booking/fetch-flights -H "Content-Type: application/json" -d '{}'
+  ```
+
 ---
 
 ## Manual Testing Guidance

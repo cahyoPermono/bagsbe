@@ -20,11 +20,15 @@
     "pg": "^8.16.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.15.30",
     "@types/node-fetch": "^2.6.12",
+    "@types/pg": "^8.15.4",
     "drizzle-kit": "^0.20.16",
-    "node-fetch": "2",
+    "node-fetch": "^2.7.0",
     "supertest": "^7.1.1",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "vitest": "^3.2.2"
   }
