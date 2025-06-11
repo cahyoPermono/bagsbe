@@ -4,6 +4,7 @@ import axios from 'axios';
 import tls from 'tls';
 import { db } from '../db';
 import { flights } from '../models/flight';
+import { fetchPassengerList } from './passengerService';
 
 const FLIGHT_API_URL = 'https://sapp-api.asyst.co.id/exbag-dcs-devDCSLST_FlightListDisplay';
 const FLIGHT_API_HEADERS = {
@@ -85,6 +86,12 @@ export async function fetchFlights() {
         createdAt: now,
         updatedAt: now,
       }).onConflictDoNothing();
+      // Call fetchPassengerList after inserting each flight
+      await fetchPassengerList(
+        f.flightId.flightDetails.flightNumber,
+        f.flightId.departureDate,
+        f.flightId.boardPoint
+      );
     }
     console.log('Flight API result:', response.data);
     return response.data;
