@@ -66,6 +66,8 @@ export async function fetchFlights() {
     },
   };
   try {
+    console.log(payload);
+    
     const response = await axios.post(
       'https://sapp-api.asyst.co.id/exbag-dcs-dev/DCSLST_FlightListDisplay',
       payload,

@@ -3,6 +3,7 @@ import { db } from '../db';
 import { bookings } from '../models/booking';
 import { eq } from 'drizzle-orm';
 import { fetchFlights } from '../services/flightService';
+import { pax } from '../models/pax';
 
 const bookingRoute = new Hono();
 
@@ -15,7 +16,26 @@ bookingRoute.post('/', async (c) => {
 
 // Get all bookings
 bookingRoute.get('/', async (c) => {
-  const all = await db.select().from(bookings);
+  // const all = await db.select().from(bookings);
+  const rows = await db
+    .select()
+    .from(bookings)
+    .leftJoin(pax, eq(bookings.id, pax.bookingId));
+
+  // Group pax by booking
+  const bookingMap: Record<number, any> = {};
+  for (const row of rows) {
+    const booking = row.bookings;
+    const paxData = row.pax;
+    if (!bookingMap[booking.id]) {
+      bookingMap[booking.id] = { ...booking, pax: [] };
+    }
+    if (paxData) {
+      bookingMap[booking.id].pax.push(paxData);
+    }
+  }
+  const all = Object.values(bookingMap);
+  // const all = await db.select().from(bookings);
   return c.json(all);
 });
 
@@ -30,7 +50,25 @@ bookingRoute.get('/:id', async (c) => {
 // Get bookings by PNR code
 bookingRoute.get('/pnr/:pnrCode', async (c) => {
   const pnrCode = c.req.param('pnrCode');
-  const result = await db.select().from(bookings).where(eq(bookings.pnrCode, pnrCode));
+  const rows = await db
+    .select()
+    .from(bookings)
+    .leftJoin(pax, eq(bookings.id, pax.bookingId))
+    .where(eq(bookings.pnrCode, pnrCode));
+
+  // Group pax by booking
+  const bookingMap: Record<number, any> = {};
+  for (const row of rows) {
+    const booking = row.bookings;
+    const paxData = row.pax;
+    if (!bookingMap[booking.id]) {
+      bookingMap[booking.id] = { ...booking, paxes: [] };
+    }
+    if (paxData) {
+      bookingMap[booking.id].paxes.push(paxData);
+    }
+  }
+  const result = Object.values(bookingMap);
   return c.json(result);
 });
 
