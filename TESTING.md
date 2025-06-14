@@ -101,6 +101,68 @@ This document provides standardized instructions for manually testing the backen
 
 ---
 
+## Payment Endpoints
+
+### Membuat Pembayaran
+- **POST /payment**
+- **Body:**
+  ```json
+  {
+    "transaction_id": "TRX123",
+    "total_passengers": 2,
+    "payment_details": {
+      "payment_id": "PAY001",
+      "total_amount": "100000",
+      "total_waive_weight": "10",
+      "total_waive_amount": "5000",
+      "payment_method": "transfer",
+      "status": "paid"
+    },
+    "passengers": [
+      { "pax_id": 1 },
+      { "pax_id": 2 }
+    ]
+  }
+  ```
+- **Validasi:**
+  - Jika `transaction_id` kosong, response 400.
+  - Jika `transaction_id` sudah ada, response 409.
+  - Jika sukses, status pembayaran penumpang diupdate otomatis.
+- **Curl:**
+  ```bash
+  curl -X POST http://localhost:3000/payment -H "Content-Type: application/json" -d '{"transaction_id":"TRX123","total_passengers":2,"payment_details":{"payment_id":"PAY001","total_amount":"100000","total_waive_weight":"10","total_waive_amount":"5000","payment_method":"transfer","status":"paid"},"passengers":[{"pax_id":1},{"pax_id":2}]}'
+  ```
+
+### Melihat Semua Pembayaran
+- **GET /payment**
+- **Expected:** 200 OK dengan array data pembayaran.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/payment
+  ```
+
+### Melihat Pembayaran Berdasarkan ID
+- **GET /payment/:id**
+- **Expected:** 200 OK dengan objek pembayaran, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/payment/1
+  ```
+
+### Update Status/Data Pembayaran
+- **PUT /payment/:id**
+- **Body:**
+  ```json
+  { "status": "paid" }
+  ```
+- **Expected:** 200 OK dengan data pembayaran yang sudah diupdate, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl -X PUT http://localhost:3000/payment/1 -H "Content-Type: application/json" -d '{"status":"paid"}'
+  ```
+
+---
+
 ## Manual Testing Guidance
 - Use Postman/Insomnia for easier request management.
 - For POST, test with missing/invalid fields for error handling.

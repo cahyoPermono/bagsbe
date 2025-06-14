@@ -64,7 +64,7 @@ bookingRoute.get('/pnr/:pnrCode', async (c) => {
     if (!bookingMap[booking.id]) {
       bookingMap[booking.id] = { ...booking, paxes: [] };
     }
-    if (paxData) {
+    if (paxData && paxData.statusPayment === false) {
       bookingMap[booking.id].paxes.push(paxData);
     }
   }
