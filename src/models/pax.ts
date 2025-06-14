@@ -39,4 +39,5 @@ export const pax = pgTable('pax', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
   bookingId: integer('booking_id').references(() => bookings.id).notNull(),
+  paymentId: integer('payment_id'),
 });
