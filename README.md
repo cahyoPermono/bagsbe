@@ -90,7 +90,37 @@ pnpm install
 ### 5. (Opsional) Menjalankan di Latar Belakang
 - Gunakan process manager seperti PM2 atau systemd agar aplikasi tetap berjalan di background.
 
-### 6. Testing
+### 6. Reset Database & Migrasi
+
+#### a. Jalankan di Luar Docker (Local/Manual)
+- Untuk reset database dari host/local:
+  ```sh
+  pnpm reset_db
+  ```
+- Untuk menjalankan migrasi dari host/local:
+  ```sh
+  pnpm migrate
+  ```
+- Anda juga bisa menjalankan keduanya sekaligus:
+  ```sh
+  pnpm reset_db && pnpm migrate
+  ```
+
+#### b. Jalankan di Dalam Docker
+- Untuk reset database di dalam container Docker:
+  ```sh
+  docker-compose exec app pnpm reset_db
+  ```
+- Untuk menjalankan migrasi di dalam container Docker:
+  ```sh
+  docker-compose exec app pnpm migrate
+  ```
+- Anda juga bisa menjalankan keduanya sekaligus:
+  ```sh
+  docker-compose exec app pnpm reset_db && docker-compose exec app pnpm migrate
+  ```
+
+### 7. Testing
 - Pastikan aplikasi berjalan dengan baik dan endpoint dapat diakses.
 - Lihat file `TESTING.md` untuk panduan pengujian API.
 
