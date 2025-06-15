@@ -17,7 +17,7 @@ RUN pnpm install
 COPY . .
 
 # Expose app port
-EXPOSE 3000
+EXPOSE 8080
 
 # Default command
 CMD ["pnpm", "start"]

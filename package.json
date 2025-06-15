@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "tsx src/index.ts",
     "dev": "tsx src/index.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "reset_db": "bash scripts/reset_db.sh",
+    "migrate": "npx drizzle-kit push:pg"
   },
   "keywords": [],
   "author": "Cahyo Permono <cahyo.adi@imaniprima.com>",
