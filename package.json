@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "start": "tsx src/index.ts",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
