@@ -8,7 +8,11 @@
     "dev": "tsx src/index.ts",
     "test": "vitest run",
     "reset_db": "bash scripts/reset_db.sh",
-    "migrate": "npx drizzle-kit push:pg"
+    "migrate": "npx drizzle-kit push:pg",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:delete": "pm2 delete ecosystem.config.js"
   },
   "keywords": [],
   "author": "Cahyo Permono <cahyo.adi@imaniprima.com>",
