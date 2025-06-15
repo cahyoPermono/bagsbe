@@ -11,7 +11,7 @@ import './scheduler';
 const app = new Hono();
 
 app.route('/auth', auth);
-app.route('/booking', bookingRoute);
+app.route('/bookings', bookingRoute);
 app.route('/pax', paxRoute);
 app.route('/payment', paymentRoute);
 
