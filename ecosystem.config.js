@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "bagsbe-app",
-      script: ".src/index.ts",
+      script: "src/index.ts",
       instances: 1,
       exec_mode: "fork", // ganti ke mode fork
       autorestart: true,
