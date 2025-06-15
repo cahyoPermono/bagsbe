@@ -17,6 +17,9 @@ importers:
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.5.0
       drizzle-orm:
         specifier: ^0.29.2
         version: 0.29.2(@types/pg@8.15.4)(@types/react@19.1.6)(expo-sqlite@15.2.11(expo@53.0.10(@babel/core@7.27.4)(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(pg@8.16.0)(react@19.1.0)
@@ -39,6 +42,9 @@ importers:
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
+      '@types/dotenv':
+        specifier: ^8.2.3
+        version: 8.2.3
       '@types/jsonwebtoken':
         specifier: ^9.0.9
         version: 9.0.9
@@ -1370,6 +1376,10 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
+  '@types/dotenv@8.2.3':
+    resolution: {integrity: sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw==}
+    deprecated: This is a stub types definition. dotenv provides its own type definitions, so you do not need this installed.
+
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
 
@@ -1931,6 +1941,10 @@ packages:
 
   dotenv@16.4.7:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
+    engines: {node: '>=12'}
+
+  dotenv@16.5.0:
+    resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
     engines: {node: '>=12'}
 
   dreamopt@0.8.0:
@@ -5281,6 +5295,10 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
+  '@types/dotenv@8.2.3':
+    dependencies:
+      dotenv: 16.5.0
+
   '@types/estree@1.0.7': {}
 
   '@types/estree@1.0.8': {}
@@ -5881,9 +5899,11 @@ snapshots:
 
   dotenv-expand@11.0.7:
     dependencies:
-      dotenv: 16.4.7
+      dotenv: 16.5.0
 
   dotenv@16.4.7: {}
+
+  dotenv@16.5.0: {}
 
   dreamopt@0.8.0:
     dependencies:

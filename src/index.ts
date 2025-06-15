@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { Hono } from 'hono';
 import auth from './routes/auth';
 import bookingRoute from './routes/booking';
