@@ -28,9 +28,10 @@ app.get('/', (c) => c.text('Hello from Hono backend with Drizzle ORM!'));
 
 import { serve } from '@hono/node-server';
 
-serve(app);
+const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+serve({ fetch: app.fetch, port: PORT });
 
 console.log('========================================');
-console.log('🚀 Server berjalan di http://localhost:3000');
+console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
 console.log('📅 Scheduler aktif, menulis log setiap menit');
 console.log('========================================');

@@ -2,10 +2,10 @@ import cron from 'node-cron';
 import { fetchFlights } from './services/flightService';
 
 // Scheduler yang berjalan setiap menit dan menulis ke console log
-setInterval(() => {
-  const now = new Date();
-  console.log(`[Scheduler] Menit: ${now.toLocaleTimeString()}`);
-}, 60 * 1000); // 60 detik
+// setInterval(() => {
+//   const now = new Date();
+//   console.log(`[Scheduler] Menit: ${now.toLocaleTimeString()}`);
+// }, 60 * 1000); // 60 detik
 
 // Schedule to run every day at 20:10 (8:10 PM)
 cron.schedule('10 20 * * *', async () => {

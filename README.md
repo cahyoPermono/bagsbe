@@ -52,3 +52,46 @@ Pull request dan issue sangat diterima.
 
 ## Lisensi
 IMANI PRIMA
+
+## Deploy ke Production
+
+### 1. Persiapan Lingkungan
+- Pastikan Node.js, pnpm, dan PostgreSQL sudah terinstall di server.
+- Siapkan environment variable `DATABASE_URL` pada server production, misal:
+  ```sh
+  export DATABASE_URL="postgres://user:password@localhost:5432/bagsbe"
+  ```
+
+### 2. Instalasi Dependensi
+```sh
+pnpm install
+```
+
+### 3. Migrasi Database
+- Jalankan migrasi database untuk memastikan semua tabel sudah sesuai skema:
+  ```sh
+  pnpm exec tsx scripts/run_migrations.ts
+  ```
+  Atau, jika ingin menggunakan Drizzle Kit langsung:
+  ```sh
+  npx drizzle-kit push
+  ```
+
+### 4. Build & Jalankan Aplikasi
+- Untuk menjalankan aplikasi:
+  ```sh
+  pnpm start
+  ```
+  Atau untuk mode development:
+  ```sh
+  pnpm dev
+  ```
+
+### 5. (Opsional) Menjalankan di Latar Belakang
+- Gunakan process manager seperti PM2 atau systemd agar aplikasi tetap berjalan di background.
+
+### 6. Testing
+- Pastikan aplikasi berjalan dengan baik dan endpoint dapat diakses.
+- Lihat file `TESTING.md` untuk panduan pengujian API.
+
+---

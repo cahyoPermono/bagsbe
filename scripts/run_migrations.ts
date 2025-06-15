@@ -1,7 +1,8 @@
 import { exec } from 'child_process';
 
 function runMigrations() {
-  const migrateCmd = 'npx drizzle-kit migrate';
+  // Use the correct Drizzle Kit command to apply migrations
+  const migrateCmd = 'npx drizzle-kit push';
 
   const migrateProcess = exec(migrateCmd);
 
