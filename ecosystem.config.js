@@ -4,6 +4,7 @@ module.exports = {
       name: "bagsbe-app",
       script: "src/index.ts",
       instances: 1,
+      exec_mode: "fork", // ganti ke mode fork
       autorestart: true,
       watch: false,
       max_memory_restart: "512M",
