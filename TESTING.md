@@ -163,6 +163,45 @@ This document provides standardized instructions for manually testing the backen
 
 ---
 
+## Baggage Tracking Endpoints
+
+### Update Baggage Status (Staff)
+- **PUT /baggage/:baggageNumber/status**
+- **Body:**
+  ```json
+  { "status": "security cleared (origin)" }
+  ```
+- **Valid Status:**
+  - "checkin counter"
+  - "security cleared (origin)"
+  - "loaded onto aircraft"
+  - "unloaded at destination"
+  - "security cleared (destination)"
+  - "in baggage claim area"
+- **Expected:** 200 OK dengan data terbaru, 400 jika status tidak valid, 404 jika nomor bagasi tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl -X PUT http://localhost:3000/baggage/BG123456789/status -H "Content-Type: application/json" -d '{"status":"loaded onto aircraft"}'
+  ```
+
+### Lihat Status Bagasi
+- **GET /baggage/:baggageNumber**
+- **Expected:** 200 OK dengan data tracking bagasi, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/baggage/BG123456789
+  ```
+
+### Lihat Riwayat Step & Waktu Bagasi
+- **GET /baggage/:baggageNumber/steps**
+- **Expected:** 200 OK dengan array step dan waktu untuk nomor bagasi tersebut.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/baggage/BG123456789/steps
+  ```
+
+---
+
 ## Manual Testing Guidance
 - Use Postman/Insomnia for easier request management.
 - For POST, test with missing/invalid fields for error handling.

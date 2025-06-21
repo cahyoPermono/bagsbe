@@ -3,6 +3,7 @@ import { db } from "../db";
 import { payments } from "../models/payment";
 import { pax } from "../models/pax";
 import { eq } from "drizzle-orm";
+import { createBaggageTracking } from '../models/baggage';
 
 const paymentRoute = new Hono();
 
@@ -45,14 +46,16 @@ paymentRoute.post("/", async (c) => {
     const passengerIds: number[] =
       body.passengers?.map((p: any) => p.pax_id) ?? [];
     if (passengerIds.length > 0) {
-      // Assuming you have a 'paxes' table/model and a db.update method
       await Promise.all(
-        passengerIds.map((paxId: number) =>
-          db
+        passengerIds.map(async (paxId: number) => {
+          await db
             .update(pax)
             .set({ statusPayment: true, paymentId: created.id })
-            .where(eq(pax.id, paxId))
-        )
+            .where(eq(pax.id, paxId));
+          // Generate baggage number and create tracking
+          const baggageNumber = `BG${paxId}${Date.now()}`;
+          await createBaggageTracking(paxId, baggageNumber);
+        })
       );
     }
   }

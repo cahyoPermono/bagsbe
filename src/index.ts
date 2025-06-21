@@ -5,6 +5,7 @@ import auth from './routes/auth';
 import bookingRoute from './routes/booking';
 import paxRoute from './routes/pax';
 import paymentRoute from './routes/payment';
+import baggageRoute from './routes/baggage';
 import { authMiddleware, authorizeRoles } from './middleware/auth';
 import './scheduler';
 
@@ -14,6 +15,7 @@ app.route('/auth', auth);
 app.route('/bookings', bookingRoute);
 app.route('/pax', paxRoute);
 app.route('/payment', paymentRoute);
+app.route('/baggage', baggageRoute);
 
 app.get('/protected', authMiddleware, (c) => {
   // @ts-ignore
