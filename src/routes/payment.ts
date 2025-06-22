@@ -4,6 +4,8 @@ import { payments } from "../models/payment";
 import { pax } from "../models/pax";
 import { eq } from "drizzle-orm";
 import { createBaggageTracking } from '../models/baggage';
+import { sendBaggageEmail } from '../services/emailService';
+import { pax as paxTable } from '../models/pax';
 
 const paymentRoute = new Hono();
 
@@ -55,6 +57,11 @@ paymentRoute.post("/", async (c) => {
           // Generate baggage number and create tracking
           const baggageNumber = `BG${paxId}${Date.now()}`;
           await createBaggageTracking(paxId, baggageNumber);
+          // Ambil email penumpang dan kirim email
+          const [paxData] = await db.select().from(paxTable).where(eq(paxTable.id, paxId));
+          if (paxData?.paxEmail) {
+            await sendBaggageEmail(paxData.paxEmail, baggageNumber);
+          }
         })
       );
     }
