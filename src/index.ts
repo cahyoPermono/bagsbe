@@ -8,6 +8,8 @@ import paymentRoute from './routes/payment';
 import baggageRoute from './routes/baggage';
 import { authMiddleware, authorizeRoles } from './middleware/auth';
 import './scheduler';
+import fs from 'fs';
+import path from 'path';
 
 const app = new Hono();
 
@@ -35,7 +37,33 @@ import { serve } from '@hono/node-server';
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 serve({ fetch: app.fetch, port: PORT });
 
+function logToFile(message: string, type: string = 'log') {
+  const logDir = path.join(__dirname, '../logs');
+  const dateStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const logFile = path.join(logDir, `${dateStr}.log`);
+  const logMessage = `[${new Date().toISOString()}] [${type.toUpperCase()}] ${message}\n`;
+  fs.appendFileSync(logFile, logMessage);
+}
+
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.log = (...args: any[]) => {
+  originalLog(...args);
+  logToFile(args.map(String).join(' '), 'log');
+};
+console.error = (...args: any[]) => {
+  originalError(...args);
+  logToFile(args.map(String).join(' '), 'error');
+};
+console.warn = (...args: any[]) => {
+  originalWarn(...args);
+  logToFile(args.map(String).join(' '), 'warn');
+};
+
 console.log('========================================');
-console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
-console.log('📅 Scheduler aktif, menulis log setiap menit');
+const serverMsg = `🚀 Server berjalan di http://localhost:${PORT}`;
+console.log(serverMsg);
+logToFile(serverMsg);
 console.log('========================================');
