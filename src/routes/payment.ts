@@ -3,9 +3,9 @@ import { db } from "../db";
 import { payments } from "../models/payment";
 import { pax } from "../models/pax";
 import { eq } from "drizzle-orm";
-import { createBaggageTracking } from '../models/baggage';
-import { sendBaggageEmail } from '../services/emailService';
-import { pax as paxTable } from '../models/pax';
+import { createBaggageTracking } from "../models/baggage";
+import { sendBaggageEmail } from "../services/emailService";
+import { pax as paxTable } from "../models/pax";
 
 const paymentRoute = new Hono();
 
@@ -31,13 +31,13 @@ paymentRoute.post("/", async (c) => {
     paymentId: body.payment_details?.payment_id ?? "",
     totalPax: body.total_passengers,
     totalAmount: Number(
-      (body.payment_details?.total_amount || "0").replace(/[^\d.-]/g, "")
+      (body.payment_details?.total_amount || "0").replace(/[^\d]/g, "") // Hanya ambil digit angka
     ),
     totalWaiveWeight: Number(
       (body.payment_details?.total_waive_weight || "0").replace(/[^\d.-]/g, "")
     ),
     totalWaiveAmount: Number(
-      (body.payment_details?.total_waive_amount || "0").replace(/[^\d.-]/g, "")
+      (body.payment_details?.total_waive_amount || "0").replace(/[^\d]/g, "")
     ),
     paymentMethod: body.payment_details?.payment_method,
     status: body.payment_details?.status,
@@ -48,22 +48,52 @@ paymentRoute.post("/", async (c) => {
     const passengerIds: number[] =
       body.passengers?.map((p: any) => p.pax_id) ?? [];
     if (passengerIds.length > 0) {
-      await Promise.all(
-        passengerIds.map(async (paxId: number) => {
+      for (const paxId of passengerIds) {
+        try {
           await db
             .update(pax)
-            .set({ statusPayment: true, paymentId: created.id })
+            .set({
+              statusPayment: true,
+              paymentId: created.id,
+              paxEmail:
+                body.passengers?.find((p: any) => p.pax_id === paxId)
+                  ?.email ?? null,
+              paxPhone:
+                body.passengers?.find((p: any) => p.pax_id === paxId)
+                  ?.phone ?? null,
+            })
             .where(eq(pax.id, paxId));
+        } catch (error) {
+          console.error(`Failed to update pax with id ${paxId}:`, error);
+        }
+
+        try {
           // Generate baggage number and create tracking
           const baggageNumber = `BG${paxId}${Date.now()}`;
           await createBaggageTracking(paxId, baggageNumber);
-          // Ambil email penumpang dan kirim email
-          const [paxData] = await db.select().from(paxTable).where(eq(paxTable.id, paxId));
-          if (paxData?.paxEmail) {
-            await sendBaggageEmail(paxData.paxEmail, baggageNumber);
+
+          try {
+            // Ambil email penumpang dan kirim email
+            const [paxData] = await db
+              .select()
+              .from(paxTable)
+              .where(eq(paxTable.id, paxId));
+            if (paxData?.paxEmail) {
+              await sendBaggageEmail(paxData.paxEmail, baggageNumber);
+            }
+          } catch (error) {
+            console.error(
+              `Failed to send baggage email for paxId ${paxId}:`,
+              error
+            );
           }
-        })
-      );
+        } catch (error) {
+          console.error(
+            `Failed to create baggage tracking for paxId ${paxId}:`,
+            error
+          );
+        }
+      }
     }
   }
   return c.json(created);
