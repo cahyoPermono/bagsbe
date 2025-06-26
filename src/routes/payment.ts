@@ -124,6 +124,7 @@ paymentRoute.get("/:id", async (c) => {
     total_waive_weight: found.totalWaiveWeight?.toString() ?? "0",
     total_waive_amount: found.totalWaiveAmount?.toString() ?? "0",
     payment_method: found.paymentMethod ?? "",
+    created: found.createdAt ? found.createdAt.toString() : "",
     status: found.status ?? "",
   };
 
