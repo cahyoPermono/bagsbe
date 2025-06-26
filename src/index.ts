@@ -10,6 +10,7 @@ import { authMiddleware, authorizeRoles } from './middleware/auth';
 import './scheduler';
 import fs from 'fs';
 import path from 'path';
+import { format, toZonedTime } from 'date-fns-tz';
 
 const app = new Hono();
 
@@ -39,9 +40,13 @@ serve({ fetch: app.fetch, port: PORT });
 
 function logToFile(message: string, type: string = 'log') {
   const logDir = path.join(__dirname, '../logs');
-  const dateStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const jakartaTZ = 'Asia/Jakarta';
+  const now = new Date();
+  const zonedDate = toZonedTime(now, jakartaTZ);
+  const dateStr = format(zonedDate, 'yyyy-MM-dd', { timeZone: jakartaTZ });
   const logFile = path.join(logDir, `${dateStr}.log`);
-  const logMessage = `[${new Date().toISOString()}] [${type.toUpperCase()}] ${message}\n`;
+  const logTime = format(zonedDate, 'yyyy-MM-dd HH:mm:ssXXX', { timeZone: jakartaTZ });
+  const logMessage = `[${logTime}] [${type.toUpperCase()}] ${message}\n`;
   fs.appendFileSync(logFile, logMessage);
 }
 
