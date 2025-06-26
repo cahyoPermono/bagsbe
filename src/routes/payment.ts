@@ -118,13 +118,22 @@ paymentRoute.get("/:id", async (c) => {
     .where(eq(pax.paymentId, found.id));
 
   // Map payment details
+  // Helper to format date as DD.MM.YY HH:mm
+  function formatDate(date: Date | string | null): string {
+    if (!date) return "";
+    const d = new Date(date);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const year = d.getFullYear().toString().slice(-2);
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${year} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
   const paymentDetails = {
     payment_id: found.paymentId ?? "",
     total_amount: found.totalAmount?.toString() ?? "0",
     total_waive_weight: found.totalWaiveWeight?.toString() ?? "0",
     total_waive_amount: found.totalWaiveAmount?.toString() ?? "0",
     payment_method: found.paymentMethod ?? "",
-    created: found.createdAt ? found.createdAt.toString() : "",
+    created: formatDate(found.createdAt),
     status: found.status ?? "",
   };
 
