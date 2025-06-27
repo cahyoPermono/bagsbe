@@ -15,8 +15,10 @@ import { format, toZonedTime } from 'date-fns-tz';
 const app = new Hono();
 
 app.route('/auth', auth);
+app.use('/bookings', authMiddleware);
 app.route('/bookings', bookingRoute);
 app.route('/pax', paxRoute);
+app.use('/payment', authMiddleware);
 app.route('/payment', paymentRoute);
 app.route('/baggage', baggageRoute);
 
