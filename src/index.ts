@@ -11,8 +11,10 @@ import './scheduler';
 import fs from 'fs';
 import path from 'path';
 import { format, toZonedTime } from 'date-fns-tz';
+import cors from './middleware/cors';
 
 const app = new Hono();
+app.use('*', cors());
 
 app.route('/auth', auth);
 app.use('/bookings', authMiddleware);
