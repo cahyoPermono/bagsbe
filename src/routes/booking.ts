@@ -4,8 +4,10 @@ import { bookings } from '../models/booking';
 import { eq } from 'drizzle-orm';
 import { fetchFlights } from '../services/flightService';
 import { pax } from '../models/pax';
+import { authMiddleware } from '../middleware/auth';
 
 const bookingRoute = new Hono();
+bookingRoute.use('*', authMiddleware);
 
 // Create booking
 bookingRoute.post('/', async (c) => {
