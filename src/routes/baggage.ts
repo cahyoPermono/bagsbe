@@ -70,23 +70,23 @@ baggageRoute.get('/:baggageNumber', async (c) => {
   const paxData = paxResult[0];
 
   // Get booking info
-  let bookingData = null;
-  let flightData = null;
-  if (paxData) {
-    const bookingResult = await db.select().from(bookings).where(eq(bookings.id, paxData.bookingId));
-    bookingData = bookingResult[0];
-    // Get flight info
-    if (bookingData) {
-      const flightResult = await db.select().from(flights).where(eq(flights.flightNo, bookingData.flightCode));
-      flightData = flightResult[0];
-    }
-  }
+  // let bookingData = null;
+  // let flightData = null;
+  // if (paxData) {
+  //   const bookingResult = await db.select().from(bookings).where(eq(bookings.id, paxData.bookingId));
+  //   bookingData = bookingResult[0];
+  //   // Get flight info
+  //   if (bookingData) {
+  //     const flightResult = await db.select().from(flights).where(eq(flights.flightNo, bookingData.flightCode));
+  //     flightData = flightResult[0];
+  //   }
+  // }
 
   return c.json({
     baggageTracking: tracking,
     passenger: paxData,
-    booking: bookingData,
-    flight: flightData,
+    // booking: bookingData,
+    // flight: flightData,
   });
 });
 
