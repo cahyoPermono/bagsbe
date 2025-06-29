@@ -11,11 +11,18 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendBaggageEmail(to: string, baggageNumber: string) {
+  const trackingUrl = `https://garuda-bagasi-tracker-6ycwzfowe-permonos-projects.vercel.app/tracking-detail/${baggageNumber}`;
   const mailOptions = {
     from: process.env.SMTP_FROM || 'noreply@imaniprima.com',
     to,
-    subject: 'Nomor Bagasi Anda',
-    text: `Nomor bagasi Anda: ${baggageNumber}\nGunakan nomor ini untuk tracking status bagasi Anda selama perjalanan.`,
+    subject: 'Informasi Nomor Bagasi dan Pelacakan Garuda Indonesia',
+    text:
+      `Yth. Penumpang Garuda Indonesia,\n\n` +
+      `Berikut kami informasikan nomor bagasi Anda: ${baggageNumber}.\n` +
+      `Silakan simpan nomor ini untuk keperluan pelacakan status bagasi selama perjalanan Anda.\n\n` +
+      `Untuk memantau status bagasi secara real-time, silakan kunjungi tautan berikut:\n${trackingUrl}\n\n` +
+      `Terima kasih telah mempercayakan perjalanan Anda bersama Garuda Indonesia.\n\n` +
+      `Hormat kami,\nTim Garuda Indonesia`,
   };
   try {
     await transporter.sendMail(mailOptions);
