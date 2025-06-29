@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { pax } from '../models/pax';
 import { bookings } from '../models/booking';
 import { flights } from '../models/flight';
+import { authMiddleware } from '../middleware/auth';
 
 const baggageRoute = new Hono();
 
@@ -95,6 +96,14 @@ baggageRoute.get('/:baggageNumber/steps', async (c) => {
   const { baggageNumber } = c.req.param();
   const steps = await db.select().from(baggageTrackingSteps).where(eq(baggageTrackingSteps.baggageNumber, baggageNumber));
   return c.json(steps);
+});
+
+baggageRoute.get("/", authMiddleware, async (c) => {
+  // Optionally, add pagination/filtering here
+  const allTracking = await db
+    .select()
+    .from(require("../models/baggage").baggageTracking);
+  return c.json(allTracking);
 });
 
 export default baggageRoute;

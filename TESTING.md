@@ -218,6 +218,15 @@ Pastikan backend server dan database sudah berjalan sebelum melakukan pengujian 
   curl http://localhost:3000/baggage/BG123456789/steps
   ```
 
+#### Lihat Semua Tracking Bagasi (Hanya Authenticated)
+- **GET /baggage/**
+- **Header:** `Authorization: Bearer <JWT_TOKEN>`
+- **Expected:** 200 OK array tracking bagasi, 401 jika tidak ada/mismatch token.
+- **Curl:**
+  ```bash
+  curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:3000/baggage/
+  ```
+
 ---
 
 ## Tips Pengujian Manual
