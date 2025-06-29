@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendBaggageEmail(to: string, baggageNumber: string) {
-  const trackingUrl = `https://https://tracking.garuda.imaniprima.co.id/tracking-detail/${baggageNumber}`;
+  const trackingUrl = `//https://tracking.garuda.imaniprima.co.id/tracking-detail/${baggageNumber}`;
   const mailOptions = {
     from: process.env.SMTP_FROM || 'noreply@imaniprima.com',
     to,
