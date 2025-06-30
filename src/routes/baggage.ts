@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
-import { createBaggageTracking, updateBaggageStatus, getBaggageTracking, BaggageStatus, addBaggageStep } from '../models/baggage';
+import { createBaggageTracking, updateBaggageStatus, getBaggageTracking, BaggageStatus, addBaggageStep, baggageTracking } from '../models/baggage';
 import { baggageTrackingSteps } from '../models/baggageStep';
 import { db } from '../db';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { pax } from '../models/pax';
 import { bookings } from '../models/booking';
 import { flights } from '../models/flight';
@@ -102,7 +102,7 @@ baggageRoute.get("/", authMiddleware, async (c) => {
   // Optionally, add pagination/filtering here
   const allTracking = await db
     .select()
-    .from(require("../models/baggage").baggageTracking);
+    .from(baggageTracking).orderBy(desc(baggageTracking.id));
   return c.json(allTracking);
 });
 
