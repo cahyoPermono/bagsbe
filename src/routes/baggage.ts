@@ -44,7 +44,7 @@ baggageRoute.put('/:baggageNumber/next-step', async (c) => {
     'in baggage claim area',
   ];
   const tracking = await getBaggageTracking(baggageNumber);
-  if (!tracking) return c.notFound();
+  if (!tracking) return c.json({ message: 'Nomor bagasi yang dimaksud tidak ditemukan.' }, 404);
   // Pastikan status bertipe BaggageStatus
   const currentStatus = tracking.status as BaggageStatus;
   const currentIdx = steps.indexOf(currentStatus);

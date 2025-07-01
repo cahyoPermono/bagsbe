@@ -4,6 +4,21 @@ Dokumen ini berisi panduan lengkap untuk pengujian backend BagsBe, baik secara m
 
 ---
 
+## Daftar Isi
+
+- [1. Pengujian Otomatis (Unit Test)](#1-pengujian-otomatis-unit-test)
+- [2. Pengujian Manual API (Endpoint)](#2-pengujian-manual-api-endpoint)
+  - [User Authentication Endpoints](#user-authentication-endpoints)
+  - [Booking Endpoints](#booking-endpoints)
+  - [Payment Endpoints](#payment-endpoints)
+  - [Baggage Tracking Endpoints](#baggage-tracking-endpoints)
+  - [Passenger Endpoints](#passenger-endpoints)
+  - [Flight Endpoints](#flight-endpoints)
+- [Tips Pengujian Manual](#tips-pengujian-manual)
+- [Catatan](#catatan)
+
+---
+
 ## 1. Pengujian Otomatis (Unit Test)
 
 Proyek ini menggunakan [Vitest](https://vitest.dev/) untuk unit test. Semua file test berada di folder `tests/`.
@@ -34,6 +49,8 @@ Pastikan backend server dan database sudah berjalan sebelum melakukan pengujian 
 ## Contoh Pengujian Manual Endpoint
 
 ### User Authentication Endpoints
+
+Endpoint terkait autentikasi user (register, login, akses protected route).
 
 #### Register User
 - **POST /auth/register**
@@ -71,6 +88,8 @@ Pastikan backend server dan database sudah berjalan sebelum melakukan pengujian 
 ---
 
 ### Booking Endpoints
+
+Endpoint untuk membuat, melihat, dan mencari booking berdasarkan ID atau kode PNR.
 
 #### Create Booking
 - **POST /booking**
@@ -120,6 +139,8 @@ Pastikan backend server dan database sudah berjalan sebelum melakukan pengujian 
 ---
 
 ### Payment Endpoints
+
+Endpoint untuk membuat, melihat, dan mengupdate pembayaran.
 
 #### Membuat Pembayaran
 - **POST /payment**
@@ -183,6 +204,111 @@ Pastikan backend server dan database sudah berjalan sebelum melakukan pengujian 
 
 ### Baggage Tracking Endpoints
 
+Endpoint untuk update status bagasi, melihat status, dan riwayat tracking bagasi.
+### Passenger Endpoints
+
+#### Membuat Penumpang
+- **POST /pax**
+- **Body:**
+  ```json
+  { "booking_id": 1, "name": "John Doe", "passport": "A1234567", "payment_id": 1 }
+  ```
+- **Expected:** 201 Created dengan data penumpang.
+- **Curl:**
+  ```bash
+  curl -X POST http://localhost:3000/pax -H "Content-Type: application/json" -d '{"booking_id":1,"name":"John Doe","passport":"A1234567","payment_id":1}'
+  ```
+
+#### Melihat Semua Penumpang
+- **GET /pax**
+- **Expected:** 200 OK array penumpang.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/pax
+  ```
+
+#### Melihat Penumpang Berdasarkan ID
+- **GET /pax/:id**
+- **Expected:** 200 OK penumpang, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/pax/1
+  ```
+
+#### Update Data Penumpang
+- **PUT /pax/:id**
+- **Body:**
+  ```json
+  { "name": "Jane Doe" }
+  ```
+- **Expected:** 200 OK penumpang terupdate, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl -X PUT http://localhost:3000/pax/1 -H "Content-Type: application/json" -d '{"name":"Jane Doe"}'
+  ```
+
+#### Hapus Penumpang
+- **DELETE /pax/:id**
+- **Expected:** 204 No Content jika sukses, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl -X DELETE http://localhost:3000/pax/1
+  ```
+
+---
+
+### Flight Endpoints
+
+#### Membuat Flight
+- **POST /flights**
+- **Body:**
+  ```json
+  { "code": "GA123", "origin": "CGK", "destination": "DPS", "departure": "2025-07-01T10:00:00.000Z", "arrival": "2025-07-01T13:00:00.000Z", "status": "scheduled" }
+  ```
+- **Expected:** 201 Created dengan data flight.
+- **Curl:**
+  ```bash
+  curl -X POST http://localhost:3000/flights -H "Content-Type: application/json" -d '{"code":"GA123","origin":"CGK","destination":"DPS","departure":"2025-07-01T10:00:00.000Z","arrival":"2025-07-01T13:00:00.000Z","status":"scheduled"}'
+  ```
+
+#### Melihat Semua Flight
+- **GET /flights**
+- **Expected:** 200 OK array flight.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/flights
+  ```
+
+#### Melihat Flight Berdasarkan ID
+- **GET /flights/:id**
+- **Expected:** 200 OK flight, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl http://localhost:3000/flights/1
+  ```
+
+#### Update Data Flight
+- **PUT /flights/:id**
+- **Body:**
+  ```json
+  { "status": "departed" }
+  ```
+- **Expected:** 200 OK flight terupdate, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl -X PUT http://localhost:3000/flights/1 -H "Content-Type: application/json" -d '{"status":"departed"}'
+  ```
+
+#### Hapus Flight
+- **DELETE /flights/:id**
+- **Expected:** 204 No Content jika sukses, 404 jika tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl -X DELETE http://localhost:3000/flights/1
+  ```
+
+---
+
 #### Update Baggage Status (Staff)
 - **PUT /baggage/:baggageNumber/status**
 - **Body:**
@@ -227,6 +353,18 @@ Pastikan backend server dan database sudah berjalan sebelum melakukan pengujian 
   curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:3000/baggage/
   ```
 
+#### Next Step Baggage (Advance Step)
+- **PUT /baggage/:baggageNumber/next-step**
+- **Body:**
+  ```json
+  { "step": "loaded onto aircraft", "location": "CGK" }
+  ```
+- **Expected:** 200 OK data step terbaru, 400 jika step tidak valid, 404 jika nomor bagasi tidak ditemukan.
+- **Curl:**
+  ```bash
+  curl -X PUT http://localhost:3000/baggage/BG123456789/next-step -H "Content-Type: application/json" -d '{"step":"loaded onto aircraft","location":"CGK"}'
+  ```
+
 ---
 
 ## Tips Pengujian Manual
@@ -237,9 +375,16 @@ Pastikan backend server dan database sudah berjalan sebelum melakukan pengujian 
 - Cek database untuk integritas data setelah operasi.
 - Jika ada error, cek log backend server.
 
+- Untuk endpoint yang membutuhkan autentikasi, pastikan JWT token valid dan expired token ditolak.
+- Uji skenario edge-case: data duplikat, data tidak ditemukan, dan validasi tipe data.
+- Cek response time untuk endpoint utama (pastikan < 1 detik untuk query sederhana).
+
 ---
 
 ## Catatan
 - Jalankan migrasi jika tabel belum ada: `pnpm migrate`
 - Reset database jika perlu: `pnpm reset_db`
 - Hapus instruksi test yang sudah tidak relevan secara berkala.
+
+- Untuk coverage test, gunakan perintah: `pnpm test -- --coverage`.
+- Dokumentasi API tersedia di file `openapi.yaml`.
