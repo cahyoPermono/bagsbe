@@ -1,6 +1,8 @@
 // Pax (Passenger) model for Drizzle ORM
 import { integer, text, timestamp, pgTable, serial, boolean, doublePrecision } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 import { bookings } from './booking';
+import { bagTags } from './bagTag';
 
 export const pax = pgTable('pax', {
   id: serial('id').primaryKey(),
@@ -41,3 +43,7 @@ export const pax = pgTable('pax', {
   bookingId: integer('booking_id').references(() => bookings.id).notNull(),
   paymentId: integer('payment_id'),
 });
+
+export const paxRelations = relations(pax, ({ many }) => ({
+  bagTags: many(bagTags),
+}));

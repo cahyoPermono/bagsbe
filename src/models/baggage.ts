@@ -1,7 +1,8 @@
 import { db } from '../db';
 import { integer, text, timestamp, pgTable, serial } from 'drizzle-orm/pg-core';
-import { eq } from 'drizzle-orm';
+import { eq, relations } from 'drizzle-orm';
 import { baggageTrackingSteps } from '../models/baggageStep';
+import { bagTags } from './bagTag';
 
 export const baggageTracking = pgTable('baggage_tracking', {
   id: serial('id').primaryKey(),
@@ -10,6 +11,10 @@ export const baggageTracking = pgTable('baggage_tracking', {
   status: text('status').notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const baggageTrackingRelations = relations(baggageTracking, ({ many }) => ({
+  bagTags: many(bagTags),
+}));
 
 export type BaggageStatus =
   | 'checkin counter'
@@ -27,11 +32,9 @@ export interface BaggageTracking {
   updated_at: string;
 }
 
-export async function createBaggageTracking(paxId: number, baggageNumber: string) {
+export async function createBaggageTrackingEntry(paxId: number, baggageNumber: string) {
   // Insert into baggageTracking
   const [tracking] = await db.insert(baggageTracking).values({ paxId, baggageNumber, status: 'checkin counter' }).returning();
-  // Insert the first step into baggageTrackingSteps
-  await addBaggageStep(baggageNumber, 'checkin counter');
   return tracking;
 }
 
@@ -51,6 +54,6 @@ export async function getBaggageTracking(baggageNumber: string) {
   return { ...tracking, steps };
 }
 
-export async function addBaggageStep(baggageNumber: string, step: BaggageStatus) {
-  return db.insert(baggageTrackingSteps).values({ baggageNumber, step }).returning();
+export async function addBaggageStep(baggageNumber: string, step: BaggageStatus, bagTagId: number) {
+  return db.insert(baggageTrackingSteps).values({ baggageNumber, step, bagTagId }).returning();
 }

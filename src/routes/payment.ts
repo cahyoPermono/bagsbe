@@ -3,14 +3,20 @@ import { db } from "../db";
 import { payments } from "../models/payment";
 import { pax } from "../models/pax";
 import { eq } from "drizzle-orm";
-import { createBaggageTracking } from "../models/baggage";
+import { createBaggageTrackingEntry } from "../models/baggage";
 import { sendBaggageEmail } from "../services/emailService";
 import { pax as paxTable } from "../models/pax";
+import { authMiddleware } from "../middleware/auth";
+import { bagTags } from "../models/bagTag";
+import { addBaggageStepForBagTag } from "../models/baggageStep";
 
 const paymentRoute = new Hono();
 
+paymentRoute.use("/*", authMiddleware);
+
 // Create payment
 paymentRoute.post("/", async (c) => {
+  const user = c.get("user") as { id: number };
   const body = await c.req.json();
 
   //tambahkan validasi apabila body kosong atau body.transaction_id kosong maka akan bad request
@@ -41,57 +47,90 @@ paymentRoute.post("/", async (c) => {
     ),
     paymentMethod: body.payment_details?.payment_method,
     status: body.payment_details?.status,
+    createdBy: user.id,
   };
   const [created] = await db.insert(payments).values(newPayment).returning();
 
   if (created) {
-    const passengerIds: number[] =
-      body.passengers?.map((p: any) => p.pax_id) ?? [];
-    if (passengerIds.length > 0) {
-      for (const paxId of passengerIds) {
-        try {
-          await db
-            .update(pax)
-            .set({
-              statusPayment: true,
-              paymentId: created.id,
-              paxEmail:
-                body.passengers?.find((p: any) => p.pax_id === paxId)
-                  ?.email ?? null,
-              paxPhone:
-                body.passengers?.find((p: any) => p.pax_id === paxId)
-                  ?.phone ?? null,
-            })
-            .where(eq(pax.id, paxId));
-        } catch (error) {
-          console.error(`Failed to update pax with id ${paxId}:`, error);
-        }
+    const passengersData = body.passengers ?? [];
+    let mainBaggageTrackingEntry = null;
 
+    if (passengersData.length > 0) {
+      const firstPaxId = passengersData[0].pax_id;
+      const generatedBaggageNumber = `BG${firstPaxId}${Date.now()}`;
+      try {
+        mainBaggageTrackingEntry = await createBaggageTrackingEntry(
+          firstPaxId,
+          generatedBaggageNumber
+        );
+        // Send baggage email for this specific bag tag
         try {
-          // Generate baggage number and create tracking
-          const baggageNumber = `BG${paxId}${Date.now()}`;
-          await createBaggageTracking(paxId, baggageNumber);
-
-          try {
-            // Ambil email penumpang dan kirim email
-            const [paxData] = await db
-              .select()
-              .from(paxTable)
-              .where(eq(paxTable.id, paxId));
-            if (paxData?.paxEmail) {
-              await sendBaggageEmail(paxData.paxEmail, baggageNumber);
-            }
-          } catch (error) {
-            console.error(
-              `Failed to send baggage email for paxId ${paxId}:`,
-              error
-            );
+          const [paxData] = await db
+            .select()
+            .from(paxTable)
+            .where(eq(paxTable.id, firstPaxId));
+          if (paxData?.paxEmail) {
+            await sendBaggageEmail(paxData.paxEmail, generatedBaggageNumber);
           }
         } catch (error) {
           console.error(
-            `Failed to create baggage tracking for paxId ${paxId}:`,
+            `Failed to send baggage email for bag tag ${generatedBaggageNumber} and paxId ${firstPaxId}:`,
             error
           );
+        }
+      } catch (error) {
+        console.error(
+          `Failed to create main baggage tracking entry for paxId ${firstPaxId}:`,
+          error
+        );
+      }
+    }
+
+    for (const passenger of passengersData) {
+      const paxId = passenger.pax_id;
+      try {
+        await db
+          .update(pax)
+          .set({
+            statusPayment: true,
+            paymentId: created.id,
+            paxEmail: passenger.email ?? null,
+            paxPhone: passenger.phone ?? null,
+          })
+          .where(eq(pax.id, paxId));
+      } catch (error) {
+        console.error(`Failed to update pax with id ${paxId}:`, error);
+      }
+
+      if (
+        passenger.bag_tags &&
+        passenger.bag_tags.length > 0 &&
+        mainBaggageTrackingEntry
+      ) {
+        for (const bagTagNumber of passenger.bag_tags) {
+          try {
+            // Create bag tag entry referencing the main baggage tracking entry
+            const [newBagTag] = await db
+              .insert(bagTags)
+              .values({
+                nomor: bagTagNumber,
+                status: "active", // Default status
+                keterangan: "Created during payment", // Default description
+                paxId: paxId,
+                baggageTrackingId: mainBaggageTrackingEntry.id,
+              })
+              .returning();
+
+            if (newBagTag) {
+              // Add initial baggage step for the bag tag
+              await addBaggageStepForBagTag(newBagTag.id, "checkin counter", mainBaggageTrackingEntry.baggageNumber);
+            }
+          } catch (error) {
+            console.error(
+              `Failed to process bag tag ${bagTagNumber} for paxId ${paxId}:`,
+              error
+            );
+          }
         }
       }
     }
@@ -124,7 +163,9 @@ paymentRoute.get("/:id", async (c) => {
     const d = new Date(date);
     const pad = (n: number) => n.toString().padStart(2, "0");
     const year = d.getFullYear().toString().slice(-2);
-    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${year} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${year} ${pad(
+      d.getHours()
+    )}:${pad(d.getMinutes())}`;
   }
 
   const paymentDetails = {

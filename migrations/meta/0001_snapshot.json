@@ -1,0 +1,684 @@
+{
+  "id": "af3114f0-c7e1-4c5a-96d2-ea279fae8393",
+  "prevId": "9d934a67-94a6-4059-b21d-548b1df09a1b",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "bag_tags": {
+      "name": "bag_tags",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nomor": {
+          "name": "nomor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keterangan": {
+          "name": "keterangan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pax_id": {
+          "name": "pax_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "baggage_tracking_id": {
+          "name": "baggage_tracking_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bag_tags_pax_id_pax_id_fk": {
+          "name": "bag_tags_pax_id_pax_id_fk",
+          "tableFrom": "bag_tags",
+          "tableTo": "pax",
+          "columnsFrom": [
+            "pax_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "bag_tags_baggage_tracking_id_baggage_tracking_id_fk": {
+          "name": "bag_tags_baggage_tracking_id_baggage_tracking_id_fk",
+          "tableFrom": "bag_tags",
+          "tableTo": "baggage_tracking",
+          "columnsFrom": [
+            "baggage_tracking_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "baggage_tracking": {
+      "name": "baggage_tracking",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "baggage_number": {
+          "name": "baggage_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pax_id": {
+          "name": "pax_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "baggage_tracking_baggage_number_unique": {
+          "name": "baggage_tracking_baggage_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "baggage_number"
+          ]
+        }
+      }
+    },
+    "baggage_tracking_steps": {
+      "name": "baggage_tracking_steps",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "baggage_number": {
+          "name": "baggage_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "step": {
+          "name": "step",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "step_time": {
+          "name": "step_time",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "bag_tag_id": {
+          "name": "bag_tag_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "baggage_tracking_steps_bag_tag_id_bag_tags_id_fk": {
+          "name": "baggage_tracking_steps_bag_tag_id_bag_tags_id_fk",
+          "tableFrom": "baggage_tracking_steps",
+          "tableTo": "bag_tags",
+          "columnsFrom": [
+            "bag_tag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bookings": {
+      "name": "bookings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pnr_code": {
+          "name": "pnr_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "flight_code": {
+          "name": "flight_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "flight_date": {
+          "name": "flight_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "flights": {
+      "name": "flights",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "flight_no": {
+          "name": "flight_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "operating_carrier": {
+          "name": "operating_carrier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "board_point": {
+          "name": "board_point",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "off_point": {
+          "name": "off_point",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "departure_date": {
+          "name": "departure_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "pax": {
+      "name": "pax",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pax_name": {
+          "name": "pax_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pax_nik": {
+          "name": "pax_nik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pax_email": {
+          "name": "pax_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pax_phone": {
+          "name": "pax_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "departure_date": {
+          "name": "departure_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "departure_airport": {
+          "name": "departure_airport",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "destination_airport": {
+          "name": "destination_airport",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "flight_no": {
+          "name": "flight_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ticket_no": {
+          "name": "ticket_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ticket_type": {
+          "name": "ticket_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ga_miles_no": {
+          "name": "ga_miles_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ga_miles_tier": {
+          "name": "ga_miles_tier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "free_bag_allow": {
+          "name": "free_bag_allow",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_bag_weight": {
+          "name": "total_bag_weight",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "excess_weight": {
+          "name": "excess_weight",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "excess_charge": {
+          "name": "excess_charge",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status_payment": {
+          "name": "status_payment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "ktp_nik": {
+          "name": "ktp_nik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_nama": {
+          "name": "ktp_nama",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_tpt_lahir": {
+          "name": "ktp_tpt_lahir",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_tgl_lahir": {
+          "name": "ktp_tgl_lahir",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_kelamin": {
+          "name": "ktp_kelamin",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_gol_darah": {
+          "name": "ktp_gol_darah",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_alamat": {
+          "name": "ktp_alamat",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_rt": {
+          "name": "ktp_rt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_rw": {
+          "name": "ktp_rw",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_desa": {
+          "name": "ktp_desa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_kecamatan": {
+          "name": "ktp_kecamatan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_pekerjaan": {
+          "name": "ktp_pekerjaan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ktp_citizenship": {
+          "name": "ktp_citizenship",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "booking_id": {
+          "name": "booking_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_id": {
+          "name": "payment_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pax_booking_id_bookings_id_fk": {
+          "name": "pax_booking_id_bookings_id_fk",
+          "tableFrom": "pax",
+          "tableTo": "bookings",
+          "columnsFrom": [
+            "booking_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "payments": {
+      "name": "payments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "trans_id": {
+          "name": "trans_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_id": {
+          "name": "payment_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_pax": {
+          "name": "total_pax",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_amount": {
+          "name": "total_amount",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_waive_weight": {
+          "name": "total_waive_weight",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_waive_amount": {
+          "name": "total_waive_amount",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_method": {
+          "name": "payment_method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "payments_trans_id_unique": {
+          "name": "payments_trans_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "trans_id"
+          ]
+        }
+      }
+    },
+    "users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_username_unique": {
+          "name": "users_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

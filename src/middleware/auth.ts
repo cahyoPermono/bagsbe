@@ -1,6 +1,12 @@
 import { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
 
+declare module 'hono' {
+  interface ContextVariableMap {
+    user: { id: number; role: string; [key: string]: any };
+  }
+}
+
 const JWT_SECRET = 'your_jwt_secret'; // In production, use environment variables
 
 export async function authMiddleware(c: Context, next: Next) {
