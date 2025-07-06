@@ -1,49 +1,13 @@
-// Pax (Passenger) model for Drizzle ORM
-import { integer, text, timestamp, pgTable, serial, boolean, doublePrecision } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-import { bookings } from './booking';
-import { bagTags } from './bagTag';
+import { db } from '../db';
+import { pax } from './_schema';
+import { eq } from 'drizzle-orm';
 
-export const pax = pgTable('pax', {
-  id: serial('id').primaryKey(),
-  paxName: text('pax_name').notNull(),
-  paxNik: text('pax_nik'),
-  paxEmail: text('pax_email'),
-  paxPhone: text('pax_phone'),
-  departureDate: timestamp('departure_date'),
-  departureAirport: text('departure_airport'),
-  destinationAirport: text('destination_airport'),
-  flightNo: text('flight_no'),
-  ticketNo: text('ticket_no'),
-  ticketType: text('ticket_type'),
-  gaMilesNo: text('ga_miles_no'),
-  gaMilesTier: text('ga_miles_tier'),
-  freeBagAllow: integer('free_bag_allow'),
-  totalBagWeight: doublePrecision('total_bag_weight'),
-  excessWeight: doublePrecision('excess_weight'),
-  excessCharge: doublePrecision('excess_charge'),
-  statusPayment: boolean('status_payment').default(false),
-  // KTP info
-  ktpNik: text('ktp_nik'),
-  ktpNama: text('ktp_nama'),
-  ktpTptLahir: text('ktp_tpt_lahir'),
-  ktpTglLahir: timestamp('ktp_tgl_lahir'),
-  ktpKelamin: boolean('ktp_kelamin'),
-  ktpGolDarah: text('ktp_gol_darah'),
-  ktpAlamat: text('ktp_alamat'),
-  ktpRt: text('ktp_rt'),
-  ktpRw: text('ktp_rw'),
-  ktpDesa: text('ktp_desa'),
-  ktpKecamatan: text('ktp_kecamatan'),
-  ktpPekerjaan: text('ktp_pekerjaan'),
-  ktpCitizenship: text('ktp_citizenship'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  deletedAt: timestamp('deleted_at'),
-  bookingId: integer('booking_id').references(() => bookings.id).notNull(),
-  paymentId: integer('payment_id'),
-});
+export async function updatePax(id: number, data: any) {
+  const [updatedPax] = await db.update(pax).set(data).where(eq(pax.id, id)).returning();
+  return updatedPax;
+}
 
-export const paxRelations = relations(pax, ({ many }) => ({
-  bagTags: many(bagTags),
-}));
+export async function getPaxById(id: number) {
+  const [paxData] = await db.select().from(pax).where(eq(pax.id, id));
+  return paxData;
+}

@@ -1,13 +1,8 @@
-// Flight model for Drizzle ORM
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { db } from '../db';
+import { flights } from './_schema';
+import { eq } from 'drizzle-orm';
 
-export const flights = pgTable('flights', {
-  id: serial('id').primaryKey(),
-  flightNo: text('flight_no').notNull(),
-  operatingCarrier: text('operating_carrier').notNull(),
-  boardPoint: text('board_point').notNull(),
-  offPoint: text('off_point').notNull(),
-  departureDate: text('departure_date').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+export async function getFlightById(id: number) {
+  const [flightData] = await db.select().from(flights).where(eq(flights.id, id));
+  return flightData;
+}

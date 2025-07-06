@@ -2,8 +2,8 @@ import axios from "axios";
 import https from "https";
 import tls from "tls";
 import { db } from "../db";
-import { pax } from "../models/pax";
-import { bookings } from "../models/booking";
+import { pax } from "../models/_schema";
+import { bookings } from "../models/_schema";
 // Import eq from your query builder (adjust the path if needed)
 import { eq } from "drizzle-orm";
 

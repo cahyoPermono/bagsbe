@@ -4,16 +4,18 @@ import {
   getBaggageTracking,
   BaggageStatus,
   addBaggageStep,
-  baggageTracking,
+  getBagTags,
+  updateBagTagStatus,
+  getBaggageTrackingById,
 } from "../models/baggage";
-import { baggageTrackingSteps } from "../models/baggageStep";
+import { addBaggageStepForBagTag } from "../models/baggageStep";
 import { db } from "../db";
 import { eq, desc } from "drizzle-orm";
-import { pax } from "../models/pax";
-import { bookings } from "../models/booking";
-import { flights } from "../models/flight";
+import { pax, baggageTracking, baggageTrackingSteps, bookings, flights, bagTags } from "../models/_schema";
 import { authMiddleware } from "../middleware/auth";
-import { bagTags } from "../models/bagTag";
+import { getPaxById } from "../models/pax";
+import { getBookingById } from "../models/booking";
+import { getFlightById } from "../models/flight";
 
 const baggageRoute = new Hono();
 
@@ -50,7 +52,7 @@ baggageRoute.put("/:baggageNumber/next-step", async (c) => {
     "security cleared (destination)",
     "in baggage claim area",
   ];
-  const tracking = await getBaggageTracking(baggageNumber);
+  const tracking = await getBagTags(baggageNumber);
   if (!tracking)
     return c.json(
       { message: "Nomor bagasi yang dimaksud tidak ditemukan." },
@@ -69,10 +71,10 @@ baggageRoute.put("/:baggageNumber/next-step", async (c) => {
     });
   }
   const nextStatus = steps[currentIdx + 1];
-  const [updated] = await updateBaggageStatus(baggageNumber, nextStatus);
-  // dapatkan bagtags dari upddated.id
-  const [bagtags] = await getBagtagsByBaggageId(updated.id);
-  await addBaggageStep(baggageNumber, nextStatus, bagtags.id);
+  const [updated] = await updateBagTagStatus(baggageNumber, nextStatus);
+  const baggageTracking = await getBaggageTrackingById(updated.baggageTrackingId);
+
+  await addBaggageStepForBagTag(updated.id, nextStatus, baggageTracking!.baggageNumber.toString());
   return c.json({
     message: `Status baggage diperbarui ke ${nextStatus}`,
     data: updated,
@@ -92,35 +94,18 @@ baggageRoute.get("/:baggageNumber", async (c) => {
     .where(eq(pax.id, tracking.paxId));
   const paxData = paxResult[0];
 
-  // Get booking info
-  // let bookingData = null;
-  // let flightData = null;
-  // if (paxData) {
-  //   const bookingResult = await db.select().from(bookings).where(eq(bookings.id, paxData.bookingId));
-  //   bookingData = bookingResult[0];
-  //   // Get flight info
-  //   if (bookingData) {
-  //     const flightResult = await db.select().from(flights).where(eq(flights.flightNo, bookingData.flightCode));
-  //     flightData = flightResult[0];
-  //   }
-  // }
-
   return c.json({
     baggageTracking: tracking,
     passenger: paxData,
-    // booking: bookingData,
-    // flight: flightData,
   });
 });
 
 // Get all steps for a baggage number
 baggageRoute.get("/:baggageNumber/steps", async (c) => {
   const { baggageNumber } = c.req.param();
-  const steps = await db
-    .select()
-    .from(baggageTrackingSteps)
-    .where(eq(baggageTrackingSteps.baggageNumber, baggageNumber));
-  return c.json(steps);
+  const tracking = await getBaggageTracking(baggageNumber);
+  if (!tracking) return c.notFound();
+  return c.json(tracking);
 });
 
 baggageRoute.get("/", authMiddleware, async (c) => {
@@ -132,12 +117,7 @@ baggageRoute.get("/", authMiddleware, async (c) => {
   return c.json(allTracking);
 });
 
-function getBagtagsByBaggageId(id: number) {
-  return db
-    .select()
-    .from(bagTags)
-    .where(eq(bagTags.baggageTrackingId, id));
-}
-
 export default baggageRoute;
+
+
 

@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { bookings } from '../models/booking';
+import { bookings } from '../models/_schema';
 import { eq } from 'drizzle-orm';
 import { fetchFlights } from '../services/flightService';
-import { pax } from '../models/pax';
+import { pax } from '../models/_schema';
 import { authMiddleware } from '../middleware/auth';
 
 const bookingRoute = new Hono();

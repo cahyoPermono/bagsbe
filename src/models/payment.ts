@@ -1,19 +1,28 @@
-// Payment model for Drizzle ORM
-import { integer, text, timestamp, pgTable, serial, doublePrecision, boolean } from 'drizzle-orm/pg-core';
-import { pax } from './pax';
+import { db } from '../db';
+import { payments } from './_schema';
+import { eq } from 'drizzle-orm';
 
-export const payments = pgTable('payments', {
-  id: serial('id').primaryKey(),
-  transId: text('trans_id').unique().notNull(),
-  paymentId: text('payment_id'),
-  totalPax: integer('total_pax'),
-  totalAmount: doublePrecision('total_amount'),
-  totalWaiveWeight: doublePrecision('total_waive_weight'),
-  totalWaiveAmount: doublePrecision('total_waive_amount'),
-  paymentMethod: text('payment_method'),
-  status: text('status'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  deletedAt: timestamp('deleted_at'),
-  createdBy: integer('created_by'),
-});
+export async function createPayment(newPayment: any) {
+  const [created] = await db.insert(payments).values(newPayment).returning();
+  return created;
+}
+
+export async function getPaymentById(id: number) {
+  const [found] = await db.select().from(payments).where(eq(payments.id, id));
+  return found;
+}
+
+export async function getAllPayments() {
+  const all = await db.select().from(payments);
+  return all;
+}
+
+export async function updatePayment(id: number, data: any) {
+  const [updated] = await db.update(payments).set(data).where(eq(payments.id, id)).returning();
+  return updated;
+}
+
+export async function getPaymentByTransId(transId: string) {
+  const [existing] = await db.select().from(payments).where(eq(payments.transId, transId));
+  return existing;
+}

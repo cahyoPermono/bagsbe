@@ -1,12 +1,8 @@
-// Booking model for Drizzle ORM
-import { integer, text, timestamp, pgTable, serial } from 'drizzle-orm/pg-core';
+import { db } from '../db';
+import { bookings } from './_schema';
+import { eq } from 'drizzle-orm';
 
-export const bookings = pgTable('bookings', {
-  id: serial('id').primaryKey(),
-  pnrCode: text('pnr_code').notNull(),
-  flightCode: text('flight_code').notNull(),
-  flightDate: timestamp('flight_date').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  deletedAt: timestamp('deleted_at'),
-});
+export async function getBookingById(id: number) {
+  const [bookingData] = await db.select().from(bookings).where(eq(bookings.id, id));
+  return bookingData;
+}

@@ -3,7 +3,7 @@ import https from 'https';
 import axios from 'axios';
 import tls from 'tls';
 import { db } from '../db';
-import { flights } from '../models/flight';
+import { flights } from '../models/_schema';
 import { fetchPassengerList } from './passengerService';
 
 const FLIGHT_API_URL = 'https://sapp-api.asyst.co.id/exbag-dcs-devDCSLST_FlightListDisplay';

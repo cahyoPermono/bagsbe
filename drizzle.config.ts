@@ -2,7 +2,7 @@ import 'dotenv/config';
 import type { Config } from 'drizzle-kit';
 
 export default {
-  schema: './src/models',
+  schema: './src/models/_schema.ts',
   out: './migrations',
   driver: 'pg',
   dbCredentials: {

@@ -1,14 +1,14 @@
 import { Hono } from "hono";
 import { db } from "../db";
-import { payments } from "../models/payment";
-import { pax } from "../models/pax";
+import { payments, pax as paxTable, bagTags, pax } from "../models/_schema";
 import { eq } from "drizzle-orm";
-import { createBaggageTrackingEntry } from "../models/baggage";
+import { createBaggageTrackingEntry, updateBagTagStatus, getBaggageTrackingById } from "../models/baggage";
 import { sendBaggageEmail } from "../services/emailService";
-import { pax as paxTable } from "../models/pax";
 import { authMiddleware } from "../middleware/auth";
-import { bagTags } from "../models/bagTag";
 import { addBaggageStepForBagTag } from "../models/baggageStep";
+import { createBagTag } from "../models/bagTag";
+import { updatePax } from "../models/pax";
+import { createPayment, getAllPayments, getPaymentById, getPaymentByTransId, updatePayment } from "../models/payment";
 
 const paymentRoute = new Hono();
 
@@ -24,11 +24,8 @@ paymentRoute.post("/", async (c) => {
     return c.text("Transaction ID is required", 400);
   }
   // Check if transaction_id already exists
-  const existing = await db
-    .select()
-    .from(payments)
-    .where(eq(payments.transId, body.transactionId));
-  if (existing.length > 0) {
+  const existing = await getPaymentByTransId(body.transaction_id);
+  if (existing) {
     return c.text("Transaction ID already exists", 409);
   }
   // Insert new payment
@@ -49,7 +46,7 @@ paymentRoute.post("/", async (c) => {
     status: body.payment_details?.status,
     createdBy: user.id,
   };
-  const [created] = await db.insert(payments).values(newPayment).returning();
+  const created = await createPayment(newPayment);
 
   if (created) {
     const passengersData = body.passengers ?? [];
@@ -89,15 +86,12 @@ paymentRoute.post("/", async (c) => {
     for (const passenger of passengersData) {
       const paxId = passenger.pax_id;
       try {
-        await db
-          .update(pax)
-          .set({
-            statusPayment: true,
-            paymentId: created.id,
-            paxEmail: passenger.email ?? null,
-            paxPhone: passenger.phone ?? null,
-          })
-          .where(eq(pax.id, paxId));
+        await updatePax(paxId, {
+          statusPayment: true,
+          paymentId: created.id,
+          paxEmail: passenger.email ?? null,
+          paxPhone: passenger.phone ?? null,
+        });
       } catch (error) {
         console.error(`Failed to update pax with id ${paxId}:`, error);
       }
@@ -110,16 +104,13 @@ paymentRoute.post("/", async (c) => {
         for (const bagTagNumber of passenger.bag_tags) {
           try {
             // Create bag tag entry referencing the main baggage tracking entry
-            const [newBagTag] = await db
-              .insert(bagTags)
-              .values({
-                nomor: bagTagNumber,
-                status: "active", // Default status
-                keterangan: "Created during payment", // Default description
-                paxId: paxId,
-                baggageTrackingId: mainBaggageTrackingEntry.id,
-              })
-              .returning();
+            const newBagTag = await createBagTag(
+              bagTagNumber,
+              'checkin counter', // Default status
+              'Created during payment', // Default description
+              paxId,
+              mainBaggageTrackingEntry.id
+            );
 
             if (newBagTag) {
               // Add initial baggage step for the bag tag
@@ -140,14 +131,14 @@ paymentRoute.post("/", async (c) => {
 
 // Get all payments
 paymentRoute.get("/", async (c) => {
-  const all = await db.select().from(payments);
+  const all = await getAllPayments();
   return c.json(all);
 });
 
 // Get payment by id
 paymentRoute.get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
-  const [found] = await db.select().from(payments).where(eq(payments.id, id));
+  const found = await getPaymentById(id);
   if (!found) return c.notFound();
 
   // Fetch passengers related to this payment
@@ -216,11 +207,7 @@ paymentRoute.get("/:id", async (c) => {
 paymentRoute.put("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const body = await c.req.json();
-  const [updated] = await db
-    .update(payments)
-    .set(body)
-    .where(eq(payments.id, id))
-    .returning();
+  const updated = await updatePayment(id, body);
   if (!updated) return c.notFound();
   return c.json(updated);
 });

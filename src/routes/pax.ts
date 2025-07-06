@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { pax } from '../models/pax';
 import { eq } from 'drizzle-orm';
+import { pax } from '../models/_schema';
 
 const paxRoute = new Hono();
 
