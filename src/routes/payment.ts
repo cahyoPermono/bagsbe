@@ -51,30 +51,16 @@ paymentRoute.post("/", async (c) => {
   if (created) {
     const passengersData = body.passengers ?? [];
     let mainBaggageTrackingEntry = null;
+    let firstPaxId = null
 
     if (passengersData.length > 0) {
-      const firstPaxId = passengersData[0].pax_id;
+      firstPaxId = passengersData[0].pax_id;
       const generatedBaggageNumber = `BG${firstPaxId}${Date.now()}`;
       try {
         mainBaggageTrackingEntry = await createBaggageTrackingEntry(
           firstPaxId,
           generatedBaggageNumber
         );
-        // Send baggage email for this specific bag tag
-        try {
-          const [paxData] = await db
-            .select()
-            .from(paxTable)
-            .where(eq(paxTable.id, firstPaxId));
-          if (paxData?.paxEmail) {
-            await sendBaggageEmail(paxData.paxEmail, generatedBaggageNumber);
-          }
-        } catch (error) {
-          console.error(
-            `Failed to send baggage email for bag tag ${generatedBaggageNumber} and paxId ${firstPaxId}:`,
-            error
-          );
-        }
       } catch (error) {
         console.error(
           `Failed to create main baggage tracking entry for paxId ${firstPaxId}:`,
@@ -125,6 +111,22 @@ paymentRoute.post("/", async (c) => {
         }
       }
     }
+
+    // Send baggage email for this specific bag tag
+        try {
+          const [paxData] = await db
+            .select()
+            .from(paxTable)
+            .where(eq(paxTable.id, firstPaxId));
+          if (paxData?.paxEmail) {
+            await sendBaggageEmail(paxData.paxEmail, mainBaggageTrackingEntry?.baggageNumber);
+          }
+        } catch (error) {
+          console.error(
+            `Failed to send baggage email for bag tag ${mainBaggageTrackingEntry?.baggageNumber} and paxId ${firstPaxId}:`,
+            error
+          );
+        }
   }
   return c.json(created);
 });
