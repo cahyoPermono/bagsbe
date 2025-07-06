@@ -1,5 +1,5 @@
 import { Context, Next } from 'hono';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 declare module 'hono' {
   interface ContextVariableMap {
@@ -18,7 +18,12 @@ export async function authMiddleware(c: Context, next: Next) {
   const token = authHeader.substring(7);
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    c.set('user', decoded);
+
+    if (typeof decoded === 'string') {
+      return c.json({ error: 'Invalid token format' }, 401);
+    }
+
+    c.set('user', decoded as { id: number; role: string; [key: string]: any });
     await next();
   } catch (err) {
     return c.json({ error: 'Invalid token' }, 401);
