@@ -5,7 +5,7 @@ import { db } from "../db";
 import { pax } from "../models/_schema";
 import { bookings } from "../models/_schema";
 // Import eq from your query builder (adjust the path if needed)
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 const PASSENGER_API_URL =
   "https://sapp-api.asyst.co.id/exbag-dcs-dev/DCSLST_GetPassengerList";
@@ -63,7 +63,9 @@ export async function fetchPassengerList(
           p.customerData.otherPaxDetails?.givenName || ""
         }`.trim(),
         paxNik: p.uniqueCustomerId.idSection.primeId,
-        departureDate: parseFlightDate(p.productLevel.flightInformation.flightDate.departureDate),
+        departureDate: parseFlightDate(
+          p.productLevel.flightInformation.flightDate.departureDate
+        ),
         departureAirport:
           p.productLevel.flightInformation.boardPointDetails.trueLocationId,
         destinationAirport:
@@ -106,7 +108,42 @@ export async function fetchPassengerList(
       if (typeof paxNew.updatedAt === "string")
         paxNew.updatedAt = new Date(paxNew.updatedAt);
 
-      await db.insert(pax).values(paxNew).onConflictDoNothing();
+      // cek apakah pax dengan paxName, pakNik, departureDate, departureAirport, destinationAirport, flightNo tersebut sudah ada, kalau sudah dilewati
+      const existingPax = await db
+        .select()
+        .from(pax)
+        .where(
+          and(
+            eq(
+              pax.paxName,
+              `${p.customerData.paxDetails.surname} ${
+                p.customerData.otherPaxDetails?.givenName || ""
+              }`.trim()
+            ),
+            eq(pax.paxNik, p.uniqueCustomerId.idSection.primeId),
+            eq(
+              pax.departureDate,
+              parseFlightDate(
+                p.productLevel.flightInformation.flightDate.departureDate
+              )
+            ),
+            eq(
+              pax.departureAirport,
+              p.productLevel.flightInformation.boardPointDetails.trueLocationId
+            ),
+            eq(
+              pax.destinationAirport,
+              p.productLevel.flightInformation.offpointDetails.trueLocationId
+            ),
+            eq(
+              pax.flightNo,
+              p.productLevel.flightInformation.flightIdentification.flightNumber
+            )
+          )
+        );
+      if (existingPax.length == 0) {
+        await db.insert(pax).values(paxNew).onConflictDoNothing();
+      }
     }
     console.log("Passenger List API result:", response.data);
     return response.data;

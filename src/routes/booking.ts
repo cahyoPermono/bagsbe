@@ -76,7 +76,7 @@ bookingRoute.get('/pnr/:pnrCode', async (c) => {
 
 // Endpoint to fetch flights from external API
 bookingRoute.post('/fetch-flights', async (c) => {
-  await c.req.json(); // Ignore payload, API uses hardcoded structure
+  // await c.req.json(); // Ignore payload, API uses hardcoded structure
   await fetchFlights(); // Call without arguments
   return c.json({ message: 'Flight API called, check server logs for result.' });
 });

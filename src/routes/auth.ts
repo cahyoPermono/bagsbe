@@ -44,7 +44,7 @@ auth.post('/login', async (c) => {
     return c.json({ error: 'Invalid username or password' }, 401);
   }
 
-  const token = jwt.sign({ id: user[0].id, username: user[0].username, role: user[0].role }, JWT_SECRET, { expiresIn: '1h' });
+  const token = jwt.sign({ id: user[0].id, username: user[0].username, role: user[0].role }, JWT_SECRET, { expiresIn: '1d' });
   return c.json({ token });
 });
 
